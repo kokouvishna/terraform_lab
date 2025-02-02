@@ -41,3 +41,36 @@ Autoscaling rules:
 The ``terraform statefile`` will be stored in a ``blobstorage``. When the developer runs terraform init, it will refer the statefile
 as the local backend, but it is actually the remote backend. 
 Then the developer can run terraform plan and apply against the infrastrcuture to provision it.
+
+First run ``backend.sh``, to create a resource group, a storage account, and then a blob storage. At the end of the output you should see:
+```
+{
+  "created": true
+}
+```
+
+Now you can run to create all resources
+```
+terraform init 
+terraform plan
+terraform apply
+```
+
+Now let's heat to `azure portal` > `Resources Group`.
+The first resource group is `tfstate-sunnyday`, where the tfstate file is saved.
+The second resource group is `sunnyday-rg`, where all other resources (vmss, nat, nsg, etc...) are created
+
+![screenshot](images/resources_overview.PNG)
+
+To access one of the backend server, we go to, `sunny-rg` > `Overview` > `lb-publicIP`, and copy the `DNS name`, `sunnyday-rg-prime-finch.canadacentral.cloudapp.azure.com`.
+In a webbrowser we paste the `DNS name`, followed by `/index.php`. It should look like this `sunnyday-rg-prime-finch.canadacentral.cloudapp.azure.com/index.php`.
+This page should appear with a tetris game in it
+
+![screenshot](images/php_page.PNG)
+
+On the page you can see the currently used VM `vmss-terraform_<xxx>` under `VW Name`. And if you try the quickly refresh the page, at some point you will notice that the VM name changes. That means the requests are being redirected to another VM.
+
+Now that you are done, destroy everything
+```
+terraform destroy
+```
